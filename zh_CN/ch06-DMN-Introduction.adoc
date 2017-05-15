@@ -1,21 +1,20 @@
 [[bpmn20]]
 
-== DMN 1.1 Introduction
+== DMN 1.1介绍 DMN 1.1 Introduction
 
 [[whatIsDmn]]
 
 
-=== What is DMN?
+=== DMN是什么？ What is DMN?
 
-Decision Model and Notation (DMN) is a standard published by the link:$$http://www.omg.org/spec/DMN/1.1$$[Object Management Group]. It's a standard approach for describing and modeling repeatable decisions within organizations to ensure that decision models are interchangeable across organizations.
+选择模型与注解(Decision Model and Notation, DMN)是由link:$$http://www.omg.org/spec/DMN/1.1$$[Object Management Group]发布的标准。是用于描述与建模组织中可重复的选择的标准方式，用以确保选择模型可以在组织间公用。
 
 [[dmnDefiningDecision]]
 
 
-=== What is a DMN definition
+=== DMN定义是什么 What is a DMN definition
 
-The root element of the DMN 1.1 schema is a *definitions* element. Within this element multiple decision definitions can be defined (although we advise you to
-have only one process definition in each file, as this simplifies maintenance later in the development process). Within each decision, one expression can be defined. There are several types of expressions. Within Flowable, currently, the expression type *decision table* is supported.
+DMN 1.1概要(schema)的根元素是**definitions**元素。在这个元素内，可以定义多个选择定义（尽管我们建议在每个文件中，只有一个选择定义。这样可以简化之后再部署过程的管理）。在每个选择中，可以定义一个表达式。表达式有多种类型。在Flowable中，目前只支持**选择表(decision table)**类型的表达式。
 
 [source,xml,linenums]
 ----
@@ -34,90 +33,85 @@ have only one process definition in each file, as this simplifies maintenance la
 </definitions>
 ----
 
-=== Creating a DMN definition
+=== 创建一个DMN定义 Creating a DMN definition
 
-It's possible to create a DMN Definition with a plain text editor, but for this example we'll start by using the decision table editor included in the Flowable modeler.
+可以使用文本编辑器创建DMN定义。但是在这个例子中，我们使用Flowable modeler中提供的选择表编辑器创建。
 
-We'll implement a very simple use case: determining the discount percentage based on a customer category.
+我们将实现一个非常简单的用例：根据用户分类，决定折扣比例。
 
-Start by opening the decision tables section within the Flowable modeler.
+在Flowable modeler中打开选择表界面。
 
 image::images/decision_tables_1.png[align="center"]
 
-And select *Create Decision Table*.
+并选择**Create Decision Table(创建选择表)**。
 
 image::images/decision_tables_2.png[align="center"]
 
-Provide a decision table name and a unique decision table key and select *Create new decision table*.
+提供一个选择表名，以及唯一的选择表key，并选中**Create new decision table(创建新选择表)**。
 
 image::images/decision_tables_3.png[align="center"]
 
-You're now ready to define your decision table. Let's describe what is presented within the editor.
+这样就可以开始定义你的选择表了。让我们介绍一下编辑器的界面。
 
-==== Hit Policy
+==== 命中策略 Hit Policy
 
-In the top left corner you can select a *hit policy*.
+在左上角可以选择一个**命中策略**。
 
-There are 2 hit policies available; *first (single pass)* and *any (single pass)*.
-When hit policy first is selected the execution of the decision table will stop when a rule is valid.
-When hit policy any is selected all valid rules will executed.
 
-==== Input and Output expressions
+可以使用两种命中策略：**first(首先，单选)**和**any(任意，单选)**。若使用首先命中策略，则选择表的执行会在某条规则有效时停止。若使用任意命中策略，将执行所有有效的规则。
 
-The header of the decision table itself is divided in two sections; blue and green. In the blue section are the *input expressions*; the green the *output expressions*.
+==== 输入与输出表达式 Input and Output expressions
+
+选择表分成两个区域：蓝色和绿色。在蓝色区域中是**输入表达式**；在绿色区域中是**输出表达式**。
 
 image::images/decision_tables_4.png[align="center"]
 
-Within an input expression, you can define the variable that will be used in the expression of the rule input entries (explained below). It's possible to define multiple input expressions by selecting *Add Input*.
+在输入表达式中，可以定义变量，用于规则输入项(input entries)的表达式（在下面解释）。可以通过选择**Add Input(添加输入)**，定义多个输入表达式。
 
 image::images/decision_tables_5.png[align="center"]
 
-Within an output expression, you can define what variable will be created to form the result of a decision table execution (the value of the variable will be determined by the output entry expression; explained below). It's possible to define multiple output expressions by selecting *Add Output*.
+在输出表达式中，可以定义选择表执行结果要创建的变量（变量的值将用于输出项表达式，在下面解释）。可以通过选择**Add Output(添加输出)**，定义多个输出表达式。
 
+==== 规则 Rules
 
-==== Rules
+每个规则包含一个或多个输入项，以及一个或多个输出项。输入项是一个表达式，将使用（该列的）输入变量计算。如果所有的输入项都计算为true，则规则结果为true，并将计算输出项。
 
-Each rule consists of one or more input entries and one or more output entries.
-A input entry is an expression that will be evaluated against the input variable (of that 'column'). When all input entries are evaluated to be true the rule is considered true, and the output entry is evaluated.
 
 [NOTE]
 ====
-The DMN specification defines an expression language: (S)-FEEL. Currently, we do not supported this part of the specification. Within Flowable DMN, we use link:$$https://github.com/mvel/mvel$$[ MVEL] as the expression language.
+DMN标准定义了一个表达式语言：(S)-FEEL。目前，我们还不支持这部分标准。在Flowable DMN中，我们使用link:$$https://github.com/mvel/mvel$$[MVEL]作为表达式语言。
 ====
 
 image::images/decision_tables_6.png[align="center"]
 
-To enter an expression, double-click on the corresponding cell. 
-In this example, the expression _== "BRONZE"_ is entered. Combined with the variable defined in the corresponding input expression (column header), this will result at runtime in the full expression _customerCat == "BRONZE"_.
+双击对应的单元格，录入输入表达式。在这个例子中，录入了表达式__== "BRONZE"__。与相应的输入表达式（列头）的变量定义结合，就在运行时产生了完整的表达式__customerCat == "BRONZE"__。
 
 image::images/decision_tables_7.png[align="center"]
 
-To enter an output expression, double-click the corresponding cell.
-In this example the expression _5_ is entered. This is actually more like an implicit assignment. The value 5 will be assigned to the variable in the corresponding output entry (column) when all input entries of that rule are evaluated true.
+双击对应的单元格，录入输出表达式。在这个例子中，录入了表达式__5__。 这实际上更像一个隐含赋值。当规则的所有输入项都计算为true时，相应的输出项（列）的变量将赋值为5.
 
-We can then continue completing the decision table by adding more rules (by selecting Add Rule).
+我们可以继续添加更多规则（点击Add Rule，添加规则），以完成选择表。
 
 image::images/decision_tables_8.png[align="center"]
 
-In our example, rule 4 has an empty input entry. Empty input entries will be evaluated by the engine as true. This means that if none of the other rules are valid, the outcome of rule 4 will be the output of this decision table. In this case, variable *discountPerc* will have value *0*.
+在我们的例子中，规则4使用空输入项。空输入项将被引擎计算为true。这意味着如果其他规则都失效的话，规则4的输出将成为选择表的输出。在这个场景中，变量**discountPerc**的值将设置为**0**。
 
 image::images/decision_tables_9.png[align="center"]
 
-The decision table can now be saved. Provide a unique Decision Table key.
+这样就可以保存选择表了。需要提供一个唯一的选择表key。
 
-=== Use in a BPMN2.0 process
+=== 在BPMN2.0流程中使用 Use in a BPMN2.0 process
 
-The newly created decision table can be used in a BPMN2.0 process by including a *Decision task* and selecting the *Decision table reference*.
+可以在一个BPMN2.0流程中，引入一个**选择任务(Decision task)**，并选中**引用选择表(Decision table reference)**，来使用新创建的选择表。
 
 image::images/decision_tables_10.png[align="center"]
 
-In the process above, the process has a start form that will provide the *customer category* to the process instance (and thus to the decision table).
-The *Display Discount* user task displays the result of the decision table with an expression form field, using the expression; ${discountperc}.
+在上面的流程中，有一个启动表单，为流程实例（及选择表）提供**客户分类(customer category)**。**Display Discount(显示折扣)**用户任务，将使用一个表达式表单字段及表达式${discountperc}，显示选择表的结果。
 
 
 === DMN 1.1 XML
 
-The full DMN 1.1 XML of the example above.
+上面例子的完整DMN 1.1 XMl如下：
 
 [source,xml,linenums]
 ----
@@ -167,4 +161,4 @@ The full DMN 1.1 XML of the example above.
 </definitions>
 ----
 
-* Important to note here, is that the decision table key used in Flowable is the decision ID in the DMN XML. *
+**在这里请注意，Flowable中使用的选择表key，是DMN XML中的选择id**。

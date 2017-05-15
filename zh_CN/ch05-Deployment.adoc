@@ -1,29 +1,26 @@
 [[chDeployment]]
 
-== Deployment
+== 部署 Deployment
 
 
-=== DMN Definitions
+=== DMN定义 DMN Definitions
 
-DMN Definitions with +.dmn+ extension can be deployed to the DMN engine.
+可以在DMN引擎中部署带有++.dmn++扩展名的DMN定义。
 
-When the DMN engine is plugged into the Process engine, the DMN definitions can be packed into a business archive (BAR) together with other process related resources. The Process engine deployment service will take care of deploying the DMN resources to the DMN engine.
+如果DMN引擎已经插入流程引擎，就可以与其他流程相关资源一起，将DMN定义打包进业务存档(BAR)文件中。流程引擎部署服务会将DMN资源部署至DMN引擎。
 
 [NOTE]
 ====
-Java classes used for custom expression functions present in the business archive *will not be added to the classpath*. All custom classes used in expressions in decisions in the business archive should be present on the Flowable (DMN) Engine classpath in order to run the decisions.
+业务存档中的Java类**不会添加至classpath**。业务存档中，所有选择使用的自定义类，都需要在用于运行选择的Flowable (DMN)引擎的classpath下。
 ====
 
+==== DMN定义，选择及选择表 DMN Definitions, decisions and decision tables
 
-==== DMN Definitions, decisions and decision tables
+DMN定义由选择(decision)和其他东西组成。选择有一个表达式。DMN标准描述了几种表达式的类型。目前在Flowable DMN中，我们支持选择表(decision table)类型的表达式。在部署DMN定义时，所有选择，每个可以包含一个**选择表**，将分别插入至ACT_DMN_DECISION表中。
 
-A DMN definition consists, amongst other things, of decisions. A decision has one expression. The DMN spec describes several types of expressions. Currently in Flowable DMN we support the decision table type of expression. 
-When deploying a DMN definition, every decision, which can contain one *decision table*, is inserted separately into the ACT_DMN_DECISION table.
+==== 编程方式部署 Deploying programmatically
 
-
-==== Deploying programmatically
-
-Deploying a DMN definition can be done like this:
+可以这样部署一个DMN定义：
 
 [source,java,linenums]
 ----
@@ -38,35 +35,36 @@ repositoryService.createDeployment()
 ----
 
 
-==== Java classes
+==== Java类 Java classes
 
-All classes that contain the custom expression functions that are used in your decisions should be present on the engine's classpath when a decision is executed.
+所有自定义表达式函数中用到的自定义类，在执行选择时，都需要存在于引擎的classpath中。
 
-During deployment of a DMN definition, however, these classes don't have to be present on the classpath.
+然而在部署DMN定义时，classpath中不是必须要有这些类。
 
-When you are using the demo setup and you want to add your custom classes, you should add a JAR containing your classes to the flowable-ui-app or flowable-app-rest webapp lib. Don't forget to include the dependencies of your custom classes (if any) as well. Alternatively, you can include your dependencies in the libraries directory of your Tomcat installation, +${tomcat.home}/lib+.
+当使用演示配置，且希望添加自定义类时，需要在flowable-ui-app或flowable-app-rest webapp的 lib中，添加包含有你的自定义类的JAR。别忘了也要添加你的自定义类的依赖（若有）。或者，也可以将你的依赖添加到Tomcat的库文件夹，++${tomcat.home}/lib++中。
 
 
-==== Creating a single app
+==== 创建单独应用 Creating a single app
 
-Instead of making sure that all DMN engines have all the delegation classes on their classpath and use the right Spring configuration, you may consider including the flowable-rest webapp inside your own webapp so that there is only a single +DmnEngine+.
-
+如果不想费心保证所有DMN引擎都在classpath中含有所有需要的代理类，以及保证它们都使用了正确的Spring配置，也可以考虑将flowable-rest web应用嵌入你自己的web应用，这样就只有一个单独的++DmnEngine++。
 
 [[versioningOfDMNDefinitions]]
 
 
-=== Versioning of DMN decisions
+=== DMN选择的版本 Versioning of DMN decisions
 
-DMN doesn't have a notion of versioning.  That is actually good, because the executable DMN definition file will probably live in a version control system repository (such as Subversion, Git or Mercurial) as part of your development project.  Versions of DMN decisions are created during deployment. During deployment, Flowable will assign a version to the +decision+ before it's stored in the Flowable DB.
+DMN并没有版本的概念。这其实很好，因为可执行的DMN定义文件很可能已经作为你的开发项目的一部分，保存在版本管理系统仓库中了（例如Subversion，Git，或者Mercurial）。在部署时，会创建DMN定义的版本。在部署时，Flowable会在保存至Flowable数据库前，为++decision++指定版本。
 
-For each DMN decision in a DMN definition, the following steps are performed to initialize the properties +key+, +version+, +name+ and ++id++:
 
-* The decision +id+ attribute in the definition XML file is used as the decision table +key+ property.
-* The decision +name+ attribute in the XML file is used as the decision table +name+ property.
-* The first time a decision with a particular key is deployed, version 1 is assigned.  For all subsequent deployments of decisions with the same key, the version will be set 1 higher than the maximum currently deployed version. The key property is used to distinguish decisions.
-* The id property is a unique number to guarantee uniqueness of the decision table identifier for the decision table caches in a clustered environment.
+对于DMN定义中的每个DMN选择，下列步骤都会执行，以初始化++key++、++version++、++name++与++id++参数：
 
-Take for example the following process:
+* XML文件中选择的++id++属性作为选择表的++key++参数。
+* XML文件中选择的++name++属性作为选择表的++name++参数。
+* 当每个key的选择第一次部署时，指定版本为1。对其后所有使用相同key的选择，部署时版本会在该key当前已部署的最高版本号基础上加1。key参数用于区分选择。
+* id参数是一个唯一数字，用以保证在集群环境下，选择表缓存中，选择表标识的唯一性。
+
+
+以下面的选择为例：
 
 [source,xml,linenums]
 ----
@@ -76,7 +74,7 @@ Take for example the following process:
     ...
 ----
 
-When deploying this decision, the decision table in the database will look like this:
+当部署这个选择时，数据库中的选择表会是这个样子：
 
 [options="header"]
 |===============
@@ -86,7 +84,7 @@ When deploying this decision, the decision table in the database will look like 
 |===============
 
 
-Suppose we now deploy an updated version of the same process (for example, changing some user tasks), but the ++id++ of the process definition remains the same. The process definition table will now contain the following entries:
+如果我们现在部署同一个选择的更新版本，且保持选择的++id++不变，那么选择表中会包含下面的记录：
 
 [options="header"]
 |===============
@@ -96,9 +94,9 @@ Suppose we now deploy an updated version of the same process (for example, chang
 
 |===============
 
-When the ++dmnRuleService.executeDecisionByKey("myDecision")++ is called, it will now use the decision definition with version ++2++, as this is the latest version of the decision definition.
+当调用++dmnRuleService.executeDecisionByKey("myDecision")++时，会使用版本++2++的选择定义，因为这是这个选择定义的最新版本。
 
-If we create a second decision, as defined below and deploy this to Flowable DMN, a third row will be added to the table.
+如果再创建第二个选择，如下定义并部署至Flowable DMN，表中会增加第三行。
 
 [source,xml,linenums]
 ----
@@ -108,7 +106,7 @@ If we create a second decision, as defined below and deploy this to Flowable DMN
       ...
 ----
 
-The table will look like this:
+表将显示类似：
 
 [options="header"]
 |===============
@@ -119,16 +117,15 @@ The table will look like this:
 
 |===============
 
-Note how the key for the new decision is different from our first decision. Even though the name is the same (we should probably have changed that too), Flowable DMN only considers the +id+ attribute when distinguishing decisions. The new decision is therefore deployed with version 1.
+请注意新选择的key与第一个选择的不同。即使name是相同的（我们可能本应该也改变它），Flowable DMN只用++id++属性来区分选择。因此新的选择部署时版本为1.
 
 
 [[deploymentCategory]]
 
 
-=== Category
+=== 类别 Category
 
-Both DMN deployments and decision tables can have user defined categories.
-The deployment category can be specified in the API like this:
+DMN部署与选择表都可以定义类别。部署的类别可以这样使用API指定：
 
 [source,java,linenums]
 ----
@@ -139,7 +136,7 @@ dmnRepository
     .deploy();
 ----
 
-The decision table category can be specified in the API like this:
+选择表的类别可以这样使用API定义：
 
 [source,java,linenums]
 ----

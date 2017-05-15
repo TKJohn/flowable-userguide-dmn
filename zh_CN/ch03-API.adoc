@@ -5,10 +5,9 @@
 [[apiEngine]]
 
 
-=== The DMN Engine API and services
+=== DMN引擎API与服务 The DMN Engine API and services
 
-The DMN engine API is the most common way of interacting with Flowable DMN. The central starting point is the +DmnEngine+, which can be created in several ways as described in the  <<configuration,configuration section>>. From the DmnEngine, you can obtain the various other services.
-DmnEngine and the services objects are thread safe. So you can keep a reference to one of those for a whole server.
+DMN引擎API是与Flowable DMN交互的最常用手段。其入口是++DmnEngine++，并像<<configuration,配置章节>>中介绍的一样，可以使用多种方式创建。使用DmnEngine，可以获得各种其他服务。DmnEngine与服务对象都是线程安全的，因此可以在整个服务器中保存一份引用。
 
 [source,java,linenums]
 ----
@@ -18,62 +17,60 @@ DmnRepositoryService dmnRepositoryService = dmnEngine.getDmnRepositoryService();
 DmnManagementService dmnManagementService = dmnEngine.getDmnManagementService();
 ----
 
-+DmnEngines.getDefaultDmnEngine()+ will initialize and build a DMN engine the first time it is called and afterwards always return the same DMN engine. Proper creation and closing of all DMN engines can be done with +DMNEngines.init()+  and +DMNEngines.destroy()+.
+++DmnEngines.getDefaultDmnEngine()++在第一次被调用时将初始化并构建DMN引擎，在之后的调用都会返回相同的DMN引擎。DMN引擎的创建通过++DMNEngines.init()++实现，关闭由++DMNEngines.destroy()++实现。
 
-The DmnEngines class will scan for all +flowable.dmn.cfg.xml+ and +flowable-dmn-context.xml+ files. For all +flowable.dmn.cfg.xml+ files, the DMN engine will be built in the typical Flowable way: +DmnEngineConfiguration.createDmnEngineConfigurationFromInputStream(inputStream).buildDmnEngine()+. For all +flowable-dmn-context.xml+ files, the DMN engine will be built in the Spring way: First the Spring application context is created and then the DMN engine is obtained from that application context.
+DmnEngines会扫描所有++flowable.dmn.cfg.xml++与++flowable-dmn-context.xml++文件。对于所有的++flowable.dmn.cfg.xml++文件，DMN引擎会以标准Flowable方式构建引擎：++DmnEngineConfiguration.createDmnEngineConfigurationFromInputStream(inputStream).buildDmnEngine()++。对于所有的++flowable-dmn-context.xml++文件，DMN引擎会以Spring的方式构建：首先构建Spring应用上下文，然后从该上下文中获取DMN引擎。
 
-All services are stateless. This means that you can easily run Flowable DMN on multiple nodes in a cluster, each going to the same database, without having to worry about which machine actually executed previous calls. Any call to any service is idempotent, regardless of where it is executed.
+所有的服务都是无状态的。这意味着你可以很容易的在集群环境的多个节点上运行Flowable DMN，使用同一个数据库，而不用担心上一次调用实际在哪台机器上执行。不论在哪里执行，对任何服务的任何调用都是幂等（idempotent）的。
 
-The *DmnRepositoryService* is probably the first service needed when working with the Flowable DMN engine. This service offers operations for managing and manipulating +deployments+ and +DMN definitions+. A DMN definition is the root concept of a DMN model (the main concepts of DMN are explained in the <dmn-introduction, DMN introduction section>). It contains the definition of the +decision+ (and its +decision table+). 
-A +deployment+ is the unit of packaging within the Flowable DMN engine. A deployment can contain multiple DMN XML files. Deploying a deployment means it is uploaded to the engine, where all DMN definitions are inspected and parsed before being stored in the database. From that point on, the deployment is known to the system and any decision included in the deployment can now be executed.
+**DmnRepositoryService**很可能是使用Flowable DMN引擎要用的第一个服务。这个服务提供了管理与控制++部署(deployments)++与++DMN定义(DMN definitions)++的操作。DMN定义是DMN模型的基础概念(DMN的主要概念在<dmn-introduction, DMN介绍章节>中介绍)。它包含了++选择(decision)++以及对应的++选择表(decision table)++。++部署(deployment)++是Flowable DMN引擎中的包装单元，一个部署中可以包含多个DMN XML文件。部署意味着将它上传至引擎，引擎将在储存至数据库之前检查与分析所有的DMN定义。从这里开始，可以在系统中使用这个部署，部署中包含的所有选择都可以使用。
 
-Furthermore, this service allows you to:
+此外，这个服务还可以：
 
-* Query deployments, DMN definitions and decision tables known to the engine.
-* Retrieve a POJO version of the DMN definition or decision table that can be used to introspect using Java rather than XML.
+* 查询引擎已知的部署、DMN定义与选择表。
+* 获取POJO版本的DMN定义或选择表。使用它可以用Java而不是XML的方式检查选择。
 
-The *DmnRuleService* provides methods for executing a decision. By providing parameters and input data, the evaluation of a decision can be started.
+**DmnRuleService**提供执行选择的方法。提供参数和输入参数，就可以开始计算选择。
 
-The *DmnManagementService* is typically not needed when coding custom application using Flowable DMN. It allows you to retrieve information about the engine version, database tables and table metadata.
+**DmnManagementService**通常在用Flowable DMN编写用户应用时不需要使用。它可以获取关于引擎版本、数据库表以及数据库内容的信息。
 
-For more detailed information on the service operations and the DMN engine API, see link:$$flowable/index.html$$[the javadocs].
+参考link:$$http://flowable.org/javadocs/index.html$$[javadocs]了解服务操作与DMN引擎API的更多信息。
 
+=== 异常策略 Exception strategy
 
-=== Exception strategy
-
-The base exception in Flowable is the +org.flowable.engine.FlowableException+, an unchecked exception. This exception can be thrown at all times by the API, but 'expected' exceptions that happen in specific methods are documented in the link:$$http://flowable.org/javadocs/index.html$$[ the javadocs]. For example, an extract from ++DmnRuleService++:
+Flowable的异常基类是++org.flowable.engine.FlowableException++，这是一个未检查异常(unchecked exception)。在任何API操作时都可能会抛出这个异常，link:$$http://flowable.org/javadocs/index.html$[javadoc]记录了每个方法可能发生的异常。例如，从++DmnRuleService++中摘录：
 
 [source,java,linenums]
 ----
 /**
-  * Execute a decision identified by it's key.
+  * 按照key查找并执行一个选择。 --Execute a decision identified by it's key.
   *
-  * @param  decisionKey      the decision key, cannot be null
-  * @param  inputVariables   map with input variables
-  * @return                  the {@link RuleEngineExecutionResult} for this execution
+  * @param  decisionKey      选择的key，不能为null。  --the decision key, cannot be null
+  * @param  inputVariables   包含输入变量的map。  --map with input variables
+  * @return                  执行的{@link RuleEngineExecutionResult}。  --the {@link RuleEngineExecutionResult} for this execution
   * @throws FlowableObjectNotFoundException
-  *            when the decision with given key does not exist.
+  *            如果给定key不存在。  --when the decision with given key does not exist.
   * @throws FlowableException
-  *           when an error occurs while executing the decision.
+  *            如果执行选择时发生错误。  --when an error occurs while executing the decision.
   */
 RuleEngineExecutionResult executeDecisionByKey(String decisionKey, Map<String, Object> inputVariables);
 ----
 
-In the example above, when a key is passed for which no decisions exist, an exception will be thrown. Also, as the javadoc *explicitly states that decisionKey cannot be null, a +FlowableIllegalArgumentException+ will be thrown when +null+ is passed*.
+在上例中，如果传递的key找不到选择，会抛出异常。并且，由于javadoc中**明确要求decisionKey不能为null，因此如果传递了++null++值，会抛出++FlowableIllegalArgumentException++异常**。
 
-Even though we want to avoid a big exception hierarchy, the following subclasses are thrown in specific cases. All other errors that occur during process-execution or API-invocation that don't fit into the possible exceptions below are thrown as regular ++FlowableExceptions++s.
+尽管我们想避免过大的异常层次结构，在特定情况下仍然会抛出下述异常子类。所有流程执行与API调用中发生的错误，如果不符合下面列出的异常，会统一抛出++FlowableExceptions++。
 
-* ++FlowableOptimisticLockingException++: Thrown when an optimistic lock occurs in the data store caused by concurrent access of the same data entry.
-* ++FlowableClassLoadingException++: Thrown when a class requested to load was not found or when an error occurred while loading it.
-* ++FlowableObjectNotFoundException++: Thrown when an object that is requested or acted on does not exist.
-* ++FlowableIllegalArgumentException++: An exception indicating that an illegal argument has been supplied in a Flowable DMN API call, an illegal value was configured in the engine's configuration or an illegal value has been supplied.
+* ++FlowableOptimisticLockingException++: 当对同一数据实体的并发访问，导致数据存储发生乐观锁时抛出。
+* ++FlowableClassLoadingException++: 当需要载入的类（如JavaDelegates, TaskListeners, ...）无法找到，或载入时发生错误时抛出。
+* ++FlowableObjectNotFoundException++: 当请求或要操作的对象不存在时抛出。
+* ++FlowableIllegalArgumentException++: 这个异常说明调用Flowable DMN API时使用了不合法的参数。可能是引擎配置中的不合法值，或者是API调用传递的不合法参数。
 
 [[queryAPI]]
 
 
-=== Query API
+=== 查询API (Query API)
 
-There are two ways of querying data from the engine: the query API and native queries. The Query API allows to program completely typesafe queries with a fluent API. You can add various conditions to your queries (all of which are applied together as a logical AND) and precisely one ordering. The following code shows an example:
+从引擎中查询数据有两种方式：查询API与原生(native)查询。查询API可以使用链式API，通过编程方式进行类型安全的查询。你可以在查询中增加各种条件（所有条件都用做AND逻辑），也可以明确指定排序。下面是示例代码：
 
 [source,java,linenums]
 ----
@@ -83,7 +80,7 @@ List<DmnDeployment> dmnDeployments = dmnRepositoryService.createDeploymentQuery(
     .list();
 ----
 
-Sometimes you need more powerful queries, for example, queries using an OR operator or restrictions you cannot express using the Query API. For these cases, we introduced native queries, which allow you to write your own SQL queries. The return type is defined by the Query object you use and the data is mapped into the correct objects, such as Deployment, ProcessInstance, Execution, and so on. As the query will be fired at the database, you have to use table and column names as they are defined in the database; this requires some knowledge about the internal data structure and it's recommended you use native queries with care. The table names can be retrieved through the API to keep the dependency as small as possible.
+有时你需要更强力的查询，例如使用OR操作符查询，或者使用查询API不能满足查询条件要求。我们为这种需求提供了可以自己写SQL查询的原生查询。返回类型由使用的查询对象决定，数据也会映射到正确的对象中（Task、ProcessInstance、Execution，等等）。查询会在数据库中进行，因此你需要使用数据库中定义的表名与列名。这需要了解内部数据结构，因此建议小心使用原生查询。数据库表名可以通过API读取，这样可以将依赖关系减到最小。
 
 [source,java,linenums]
 ----
@@ -97,20 +94,16 @@ long count = dmnRepositoryService.createNativeDeploymentQuery()
     .count();
 ----
 
-[[apiVariables]]
-
-
 [[apiUnitTesting]]
 
 
-=== Unit testing
+=== 单元测试 Unit testing
 
-As Flowable DMN is an embeddable Java engine, writing unit tests for DMN definitions is as simple as writing regular unit tests.
+Flowable是嵌入式的Java引擎，因此为业务流程编写单元测试就与编写一般的单元测试一样简单。
 
-Flowable supports the JUnit version 4 style of unit testing. When writing JUnit 4 unit tests, the +org.flowable.dmn.engine.test.FlowableDmnRule+ Rule can be used. Through this rule, the DMN engine and services are available through getters. Including this +Rule+ will enable the use of the +org.flowable.dmn.engine.test.DmnDeploymentAnnotation+ annotation (see above for an explanation of its use and configuration) and it will look for the default configuration file on the classpath. DMN engines are statically cached over multiple unit tests when using the same configuration resource.
-It's also possible to provide a custom engine configuration to the rule.
+Flowable支持JUnit V4的单元测试风格。撰写JUnit 4测试用例时，可以使用++org.flowable.dmn.engine.test.FlowableDmnRule++ Rule。使用这个Rule，就可以通过getter访问DMN引擎和服务。引入这个++Rule++就可以使用++org.flowable.dmn.engine.test.DmnDeploymentAnnotation++注解（参见上例解释其用途及配置），并且会自动在classpath中寻找默认配置文件。当使用相同的配置资源时，流程引擎会静态缓存，以用于多个单元测试。也可以为Rule提供自定义的引擎配置。
 
-The following code snippet shows an example of using the JUnit 4 style of testing and the usage of the +FlowableDmnRule+ (and passing an optional custom configuration):
+下面的代码片段展示了JUnit 4风格的测试与++FlowableDmnRule++的用法（并传入了一个可选的自定义配置）：
 
 [source,java,linenums]
 ----
@@ -140,11 +133,11 @@ public class MyDecisionTableTest {
 [[apiProcessEngineInWebApp]]
 
 
-=== The DMN engine in a web application
+=== Web应用中的DMN引擎 The DMN engine in a web application
 
-The +DmnEngine+ is a thread-safe class and can easily be shared among multiple threads. In a web application, this means it is possible to create the DMN engine once when the container boots and shut down the engine when the container goes down.
+++DmnEngine++是线程安全的类，可以很容易地在多个线程间共享。在web应用中，这意味着可以在容器启动时创建DMN引擎，并在容器关闭时关闭引擎。
 
-The following code snippet shows how you can write a simple +ServletContextListener+ to initialize and destroy process engines in a plain Servlet environment:
+下面的代码片段展示了如何在纯Servlet环境中，简单的通过++ServletContextListener++初始化与销毁流程引擎。
 
 [source,java,linenums]
 ----
@@ -161,22 +154,20 @@ public class DmnEnginesServletContextListener implements ServletContextListener 
 }
 ----
 
-The +contextInitialized+ method will delegate to +DmnEngines.init()+. This will look for +flowable.dmn.cfg.xml+ resource files on the classpath, and create a +DmnEngine+ for the given configurations (for example, multiple JARs with a configuration file). If you have multiple such resource files on the classpath, make sure they all have different names. When the DMN engine is needed, it can be fetched using:
+++contextInitialized++方法会调用++ProcessEngines.init()++。它会在classpath中查找++flowable.dmn.cfg.xml++资源文件，并为每个配置分别创建++DmnEngine++（例如多个JAR都包含配置文件）。如果在classpath中有多个这样的资源文件，请确保它们都使用不同的名字。需要使用DMN引擎时，可以获取通过：
 
 [source,java,linenums]
 ----
 DmnEngines.getDefaultDmnEngine()
 ----
 
-or:
+或者：
 
 [source,java,linenums]
 ----
 DmnEngines.getDmnEngine("myName");
 ----
 
-Of course, it's also possible to use any of the variants of creating a DMN engine,
-as described in the <<configuration,configuration section>>.
+当然，就像<<configuration,配置章节>>中介绍的，还可以使用各种不同的方式创建DMN引擎。
 
-
-The +contextDestroyed+ method of the context-listener delegates to +DmnEngines.destroy()+. That will properly close all initialized DMN engines.
+context-listener的++contextDestroyed++方法会调用++ProcessEngines.destroy()++。它会妥善关闭所有已初始化的流程引擎。
