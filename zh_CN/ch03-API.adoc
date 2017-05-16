@@ -23,7 +23,7 @@ DmnEngines会扫描所有++flowable.dmn.cfg.xml++与++flowable-dmn-context.xml++
 
 所有的服务都是无状态的。这意味着你可以很容易的在集群环境的多个节点上运行Flowable DMN，使用同一个数据库，而不用担心上一次调用实际在哪台机器上执行。不论在哪里执行，对任何服务的任何调用都是幂等（idempotent）的。
 
-**DmnRepositoryService**很可能是使用Flowable DMN引擎要用的第一个服务。这个服务提供了管理与控制++部署(deployments)++与++DMN定义(DMN definitions)++的操作。DMN定义是DMN模型的基础概念(DMN的主要概念在<dmn-introduction, DMN介绍章节>中介绍)。它包含了++选择(decision)++以及对应的++选择表(decision table)++。++部署(deployment)++是Flowable DMN引擎中的包装单元，一个部署中可以包含多个DMN XML文件。部署意味着将它上传至引擎，引擎将在储存至数据库之前检查与分析所有的DMN定义。从这里开始，可以在系统中使用这个部署，部署中包含的所有选择都可以使用。
+**DmnRepositoryService**很可能是使用Flowable DMN引擎要用的第一个服务。这个服务提供了管理与控制++部署(deployments)++与++DMN定义(DMN definitions)++的操作。DMN定义是DMN模型的基础概念(DMN的主要概念在<<dmn-introduction, DMN介绍章节>>中介绍)。它包含了++选择(decision)++以及对应的++选择表(decision table)++。++部署(deployment)++是Flowable DMN引擎中的包装单元，一个部署中可以包含多个DMN XML文件。部署意味着将它上传至引擎，引擎将在储存至数据库之前检查与分析所有的DMN定义。从这里开始，可以在系统中使用这个部署，部署中包含的所有选择都可以使用。
 
 此外，这个服务还可以：
 

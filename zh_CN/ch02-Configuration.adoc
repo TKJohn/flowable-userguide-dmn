@@ -5,7 +5,7 @@
 
 === 创建一个DMN引擎 Creating a DMN Engine
 
-__Flowable DMN引擎的结构与Flowable流程引擎十分相似。因此，本文档的部分内容与流程引擎的对应部分也十分相似。、__
+__Flowable DMN引擎的结构与Flowable流程引擎十分相似。因此，本文档的部分内容与流程引擎的对应部分也十分相似。__
 
 Flowable DMN引擎使用一个名为++flowable.dmn.cfg.xml++的XML文件配置。请注意在使用<<springintegration,Sping方式创建DMN引擎>>的情况下不是这样。
 

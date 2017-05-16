@@ -19,11 +19,6 @@ Flowable DMN在DMN引擎中包含了REST API，可以通过在servlet容器如Ap
 
 ==== 配置 Configuration
 
-The Flowable REST web application (flowable-app-rest) uses Spring Java Configuration for starting the Flowable engines, defining the basic authentication security using Spring security and to define the variable converters for specific variable handling.
-A small number of properties can be defined by changing the engine.properties file you can find in the WEB-INF/classes folder.
-If you need more advanced configuration options, there's the possibility to override the default Spring beans in XML in the flowable-custom-context.xml file you can also find in the WEB-INF/classes folder.
-An example configuration is already commented in this file. This is also the place to override the default RestResponseFactories. For the DMN engine this can be done by defining a new Spring bean with the name dmnResponsefactory and use your custom implementation class for it.
-
 Flowable REST web应用(flowable-app-rest)使用Spring Java Configuration来启动Flowable引擎、定义基础认证安全使用Spring security，以及为特定的变量处理定义变量转换。可以修改WEB-INF/classes目录下的engine.properties文件，定义少量参数。如果需要高级配置选项，可以在flowable-custom-context.xml文件中覆盖默认的Spring bean，这个文件也在WEB-INF/classes目录下。该文件中已经以注释形式提供了示例配置。也可以在这里重载默认的RestResponseFactories。对于DMN引擎来说，就是定义一个新的命名为dmnResponsefactory的Spring bean，使用自定义实现类。
 
 [[restUsageInTomcat]]
@@ -215,21 +210,6 @@ HTTP响应的media-type总是++application/json++，除非请求的是二进制�
 |valueUrl|否|当读取++binary++或++serializable++类型的变量时，这个属性将指向可用于获取原始二进制数据的URL。
 |scope|否|变量的范围。如果值为'++local++'，则变量明确定义在其请求的资源上。如果值为'++global++'，则变量定义在其父上（或者父树中的任意父）。当写入变量且省略了scope时，使用++global++。
 |type|否|变量的类型。查看下面的表格了解类型的更多信息。当写入变量且省略了这个值时，将使用请求的原始JSON属性类型推断，限制在++string++, ++double++, ++integer++与++boolean++中。建议总是包含类型，以确保不会错误推断类型。
-|===============
-
-
-.Variable Types
-[options="header"]
-|===============
-|Type name|Description
-|string|Value is treated as a +java.lang.String+. Raw JSON-text value is used when writing a variable.
-|integer|Value is treated as a +java.lang.Integer+. When writing, JSON number value is used as base for conversion, falls back to JSON text.
-|short|Value is treated as a +java.lang.Short+. When writing, JSON number value is used as base for conversion, falls back to JSON text.
-|long|Value is treated as a +java.lang.Long+. When writing, JSON number value is used as base for conversion, falls back to JSON text.
-|double|Value is treated as a +java.lang.Double+. When writing, JSON number value is used as base for conversion, falls back to JSON text.
-|boolean|Value is treated as a +java.lang.Boolean+. When writing, JSON boolean value is used for conversion.
-|date|Value is treated as a +java.util.Date+. When writing, the JSON text will be converted using ISO-8601 date format.
-
 |===============
 
 .变量类型
@@ -619,7 +599,9 @@ GET dmn-repository/decision-tables/{decisionTableId}/model
          "executable":true,
          "documentation":"One task process description",
 
-    ]
+         ...
+      }
+   ]
 }
 ----
 
